@@ -5,8 +5,8 @@ import re
 # Functions for calculating metrics #sampling_toolboxsampling_toolbox
 
 
-def entropy(x):
-    '''Function for returning entropy'''
+def entropy(x: float):
+    """Function for returning entropy"""
     if (x == 0) | (x == 1):
         return 0
     else:
@@ -14,8 +14,8 @@ def entropy(x):
         return h
 
 
-def rig(df, target, feature):
-    '''Function for calculating the relative information gain'''
+def rig(df: pd.DataFrame, target: str, feature: str):
+    """Function for calculating the relative information gain"""
 
     h_prior = entropy(df[target].mean())
     
@@ -41,7 +41,7 @@ def rig(df, target, feature):
     return (h_prior - (h_feature_T + h_feature_F))/h_prior
 
 
-def rig_all_columns(df, target):
+def rig_all_columns(df: pd.DataFrame, target: str):
     columns = df.columns.tolist()
     
     columns.remove(target)
@@ -53,7 +53,7 @@ def rig_all_columns(df, target):
     return rigs
 
 
-def calculate_null_rigs(df, target, resamples):
+def calculate_null_rigs(df: pd.DataFrame, target: str, resamples: int):
     df_shuffled = df.copy()
     null_rigs = []
 
@@ -73,8 +73,8 @@ def calculate_null_rigs(df, target, resamples):
 # Special SB functions #
 
 
-def operational_log_number_of_features(s):
-    '''Function to extract the number of features from the operational log'''
+def operational_log_number_of_features(s: str):
+    """Function to extract the number of features from the operational log"""
     number_of_features = 0
     for line in s.split('\n'):
         match = re.search(r'.+(Best feature).+\) of (\d+)', line)
