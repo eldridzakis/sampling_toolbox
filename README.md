@@ -4,7 +4,7 @@ A python script to run relative information gain (RIG) permutation tests for boo
 
 ## How to use
 Instantiate a permutation test object by running
-* `test_object = permutation_object()`
+* `test_object = PermutationObject()`
 
 Then run the following to set the parameters for the synthetic data
 * `test_object.set_data_parameters(nrows = <number of rows>, minority_class = <minority class fraction>`)
