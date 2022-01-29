@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 
+########## Functios for calculating metrics #######
 def entropy(x):
     '''Function for returning entropy'''
     if (x == 0)|(x ==1):
@@ -64,6 +65,7 @@ def null_rigs(df, target, resamples):
     
     return df_null_rigs
 
+############# Special SB functions #################
 def operational_log_number_of_features(s):
     '''Function to extract the number of features from the operational log'''
     number_of_features = 0
@@ -74,6 +76,7 @@ def operational_log_number_of_features(s):
             number_of_features += int(match.group(2))
     return number_of_features
 
+############ Main permutation code ###################
 class permutation_object():
     
     def __init__(self):
