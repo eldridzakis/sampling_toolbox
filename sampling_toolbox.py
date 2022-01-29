@@ -2,14 +2,17 @@ import pandas as pd
 import numpy as np
 import re
 
-########## Functios for calculating metrics #######
+# Functions for calculating metrics #sampling_toolboxsampling_toolbox
+
+
 def entropy(x):
     '''Function for returning entropy'''
-    if (x == 0)|(x ==1):
+    if (x == 0) | (x == 1):
         return 0
     else:
         h = (-x*np.log2(x)) - ((1-x)*np.log2(1-x))
         return h
+
 
 def rig(df, target, feature):
     '''Function for calculating the relative information gain'''
@@ -17,10 +20,10 @@ def rig(df, target, feature):
     h_prior = entropy(df[target].mean())
     
     # Probability feature is true
-    probability_feature_true = df[feature].mean()#.to_frame()
+    probability_feature_true = df[feature].mean()
 
     # Entropy of target given feature
-    s_entropy = pd.crosstab(df[feature], df[target], normalize='index').loc[:,1].apply(entropy)
+    s_entropy = pd.crosstab(df[feature], df[target], normalize='index').loc[:, 1].apply(entropy)
 
     # If the feature only has one outcome
     if len(s_entropy) < 2:
@@ -29,14 +32,14 @@ def rig(df, target, feature):
             h_feature_T = 0
         else:
             h_feature_F = 0
-            h_feature_T = s_entropy[1]*(probability_feature_true)
+            h_feature_T = s_entropy[1]*probability_feature_true
         
     else:
         h_feature_T = s_entropy[1]*probability_feature_true
         h_feature_F = s_entropy[0]*(1-probability_feature_true)
 
-    #return h_prior, h_feature_T, h_feature_F
-    return (h_prior - (h_feature_T + h_feature_F))/h_prior   
+    return (h_prior - (h_feature_T + h_feature_F))/h_prior
+
 
 def rig_all_columns(df, target):
     columns = df.columns.tolist()
@@ -45,11 +48,12 @@ def rig_all_columns(df, target):
     
     rigs = []
     for column in columns:
-        rigs.append(rig(df,target,column))
+        rigs.append(rig(df, target, column))
         
     return rigs
 
-def null_rigs(df, target, resamples):
+
+def calculate_null_rigs(df, target, resamples):
     df_shuffled = df.copy()
     null_rigs = []
 
@@ -61,57 +65,67 @@ def null_rigs(df, target, resamples):
     columns = df.columns.tolist()
     columns.remove(target)
 
-    df_null_rigs = pd.DataFrame(null_rigs, columns = columns)
+    df_null_rigs = pd.DataFrame(null_rigs, columns=columns)
     
     return df_null_rigs
 
-############# Special SB functions #################
+
+# Special SB functions #
+
+
 def operational_log_number_of_features(s):
     '''Function to extract the number of features from the operational log'''
     number_of_features = 0
     for line in s.split('\n'):
         match = re.search(r'.+(Best feature).+\) of (\d+)', line)
         if match:
-            #print(match.group(2))
             number_of_features += int(match.group(2))
     return number_of_features
 
-############ Main permutation code ###################
-class permutation_object():
+# Main permutation code #
+
+
+class PermutationObject:
     
     def __init__(self):
         
         # Default Feature Fractions (feature support)
-        self.feature_fractions = [0.1] #+ list(np.linspace(0.1,0.5,9))
+        self.feature_fractions = [0.1]
         
         # Default reference information gain level
         self.gain_threshold = 0.0005
 
+        # Other attributes that will be set later
+        self.nrows = np.nan
+        self.minority_class = np.nan
+        self.data = pd.DataFrame()
+        self.null_rigs = []
+        self.null_rig_values = pd.Series()
+        self.permutations = np.nan
+
     def set_data_parameters(self, nrows, minority_class):
         self.nrows = nrows
         self.minority_class = minority_class
-        
-        #create_synthetic_data()
-        
+
     def create_synthetic_data(self):
         
         # Create the synthetic data
-        df = pd.DataFrame({'target':[0]*self.nrows})
+        df = pd.DataFrame({'target': [0]*self.nrows})
 
         # Set target fraction
-        index = df.sample(frac = self.minority_class,random_state = 0).index
-        df.at[index,'target'] = 1
+        index = df.sample(frac=self.minority_class, random_state=0).index
+        df.at[index, 'target'] = 1
 
         # Create the synthetic boolean feature(s)
         for feature_fraction in self.feature_fractions:
 
             # Boolean feature construction
-            column = 'feature_'+str(round(feature_fraction,3))
+            column = 'feature_'+str(round(feature_fraction, 3))
             df[column] = 0
 
             # Set feature fraction
-            index = df.sample(frac = feature_fraction, random_state = 42).index
-            df.at[index,column] = 1
+            index = df.sample(frac=feature_fraction, random_state=42).index
+            df.at[index, column] = 1
         
         self.data = df
         
@@ -133,7 +147,7 @@ class permutation_object():
         columns = self.data.columns.tolist()
         columns.remove('target')
 
-        self.null_rigs = pd.DataFrame(null_rigs, columns = columns)
+        self.null_rigs = pd.DataFrame(null_rigs, columns=columns)
         
         # Get all null RIGs (if there are multiple features)
         values = []
@@ -156,8 +170,7 @@ class permutation_object():
         counts = (self.null_rig_values > self.gain_threshold).value_counts()
 
         if True in counts.index:
-            print('{} in {} null RIGs greater than {} threshold'.format(counts[True], self.permutations, self.gain_threshold))
+            print('{} in {} null RIGs greater than {} threshold'.format(counts[True], self.permutations,
+                                                                        self.gain_threshold))
         else:
             print("0 in {}".format(self.permutations))
-
-
