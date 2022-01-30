@@ -28,17 +28,17 @@ def rig(df: pd.DataFrame, target: str, feature: str):
     # If the feature only has one outcome
     if len(s_entropy) < 2:
         if s_entropy.index[0] == 0:
-            h_feature_F = s_entropy[0]*(1-probability_feature_true)
-            h_feature_T = 0
+            h_feature_f = s_entropy[0]*(1-probability_feature_true)
+            h_feature_t = 0
         else:
-            h_feature_F = 0
-            h_feature_T = s_entropy[1]*probability_feature_true
+            h_feature_f = 0
+            h_feature_t = s_entropy[1]*probability_feature_true
         
     else:
-        h_feature_T = s_entropy[1]*probability_feature_true
-        h_feature_F = s_entropy[0]*(1-probability_feature_true)
+        h_feature_t = s_entropy[1]*probability_feature_true
+        h_feature_f = s_entropy[0]*(1-probability_feature_true)
 
-    return (h_prior - (h_feature_T + h_feature_F))/h_prior
+    return (h_prior - (h_feature_t + h_feature_f))/h_prior
 
 
 def rig_all_columns(df: pd.DataFrame, target: str):
