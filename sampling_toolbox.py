@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import re
 
-# Functions for calculating metrics #sampling_toolboxsampling_toolbox
+# Functions for calculating metrics
 
 
 def entropy(x: float):
