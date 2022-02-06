@@ -99,8 +99,8 @@ class PermutationObject:
         self.nrows = np.nan
         self.minority_class = np.nan
         self.data = pd.DataFrame()
-        self.null_rigs = []
-        self.null_rig_values = pd.Series()
+        self.df_nulls = pd.DataFrame()
+        self.null_values = pd.Series()
         self.permutations = np.nan
 
     def set_data_parameters(self, nrows, minority_class):
@@ -147,7 +147,7 @@ class PermutationObject:
         columns = self.data.columns.tolist()
         columns.remove('target')
 
-        self.df_nulls = pd.DataFrame(null_test_statistics, columns=columns)
+        self.df_nulls = pd.DataFrame(nulls, columns=columns)
         
         # Get all null RIGs (if there are multiple features)
         values = []
@@ -167,7 +167,7 @@ class PermutationObject:
         
     def nulls_comparison(self):
 
-        counts = (self.null_rig_values > self.gain_threshold).value_counts()
+        counts = (self.null_values > self.gain_threshold).value_counts()
 
         if True in counts.index:
             print('{} in {} null RIGs greater than {} threshold'.format(counts[True], self.permutations,
