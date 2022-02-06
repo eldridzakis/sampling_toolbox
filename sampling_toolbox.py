@@ -129,34 +129,34 @@ class PermutationObject:
         
         self.data = df
         
-    def calculate_null_rigs(self, permutations):
+    def calculate_null_distribution(self, permutations):
         
         self.permutations = permutations
         
         df_shuffled = self.data.copy()
         
-        null_rigs = []
+        nulls = []
 
         # Random seed isn't set
         for n in range(self.permutations):
             df_shuffled['target'] = df_shuffled['target'].sample(frac=1).values
 
-            null_rigs.append(rig_all_columns(df_shuffled, 'target'))
+            nulls.append(rig_all_columns(df_shuffled, 'target'))
 
         # Get the feature list from the columns
         columns = self.data.columns.tolist()
         columns.remove('target')
 
-        self.null_rigs = pd.DataFrame(null_rigs, columns=columns)
+        self.df_nulls = pd.DataFrame(null_test_statistics, columns=columns)
         
         # Get all null RIGs (if there are multiple features)
         values = []
-        for column in self.null_rigs.columns:
-            values.append(self.null_rigs[column])
+        for column in self.df_nulls.columns:
+            values.append(self.df_nulls[column])
 
         s1 = pd.concat(values)
 
-        self.null_rig_values = s1
+        self.null_values = s1
         
         n_greater = 1
         quantile = 1-(n_greater/self.permutations)
@@ -165,7 +165,7 @@ class PermutationObject:
         print('{} in {} null RIG \t= {}'.format(n_greater, self.permutations, s1.quantile(quantile)))
         print('Gain threshold \t\t= {}'.format(self.gain_threshold))
         
-    def null_rigs_comparison(self):
+    def nulls_comparison(self):
 
         counts = (self.null_rig_values > self.gain_threshold).value_counts()
 
