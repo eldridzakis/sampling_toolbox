@@ -5,41 +5,30 @@ import re
 # Functions for calculating metrics
 
 
-def entropy(x: float):
-    """Function for returning entropy"""
-    if (x == 0) | (x == 1):
-        return 0
-    else:
-        h = (-x*np.log2(x)) - ((1-x)*np.log2(1-x))
-        return h
-
-
-def rig(df: pd.DataFrame, target: str, feature: str):
-    """Function for calculating the relative information gain"""
-
-    h_prior = entropy(df[target].mean())
-    
-    # Probability feature is true
-    probability_feature_true = df[feature].mean()
-
-    # Entropy of target given feature
-    s_entropy = pd.crosstab(df[feature], df[target], normalize='index').loc[:, 1].apply(entropy)
-
-    # If the feature only has one outcome
-    if len(s_entropy) < 2:
-        if s_entropy.index[0] == 0:
-            h_feature_f = s_entropy[0]*(1-probability_feature_true)
-            h_feature_t = 0
+def entropy(values):
+    h = []
+    for value in values:
+        if (value == 0) | (value == 1):
+            h.append(0)
         else:
-            h_feature_f = 0
-            h_feature_t = s_entropy[1]*probability_feature_true
-        
-    else:
-        h_feature_t = s_entropy[1]*probability_feature_true
-        h_feature_f = s_entropy[0]*(1-probability_feature_true)
+            h.append(-value*np.log2(value))
 
-    return (h_prior - (h_feature_t + h_feature_f))/h_prior
+    return sum(h)
 
+def rig(x, y):
+    # Prior Entropy
+    prior_counts = pd.value_counts(y, normalize=True).to_frame()
+    pe = prior_counts.apply(entropy).values[0]
+
+    # Conditional Entropy
+    counts = pd.crosstab(x, y, normalize='index')
+    f_weights = pd.value_counts(x, normalize=True)
+
+    f_entropy = counts.apply(entropy, axis=1)
+
+    ce = sum(f_weights*f_entropy)
+
+    return (pe-ce)/pe
 
 def rig_all_columns(df: pd.DataFrame, target: str):
     columns = df.columns.tolist()
@@ -48,7 +37,7 @@ def rig_all_columns(df: pd.DataFrame, target: str):
     
     rigs = []
     for column in columns:
-        rigs.append(rig(df, target, column))
+        rigs.append(rig(df[column], df[target]))
         
     return rigs
 
