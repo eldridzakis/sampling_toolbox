@@ -84,7 +84,7 @@ class PermutationObject:
     def set_data_parameters(self, nrows, class_weights):
         self.nrows = nrows
         if len(class_weights) > 1:
-            assert sum(class_weights) == 1, 'Class weights should sum to 1'
+            assert sum(class_weights) == 1.0, 'Class weights should sum to 1'
         self.class_weights = class_weights
 
     def create_synthetic_data(self):

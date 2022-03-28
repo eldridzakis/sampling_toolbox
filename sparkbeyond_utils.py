@@ -35,3 +35,17 @@ def get_regression_bins(df: pd.core.frame.DataFrame):
     bins.append(int(re.search(string=columns[-1], pattern="\d+$").group()))
 
     return bins
+
+
+def get_binned_target(df_features: pd.core.frame.DataFrame,
+                      y: pd.core.series.Series):
+    bins = get_regression_bins(df_features)
+    print(bins)
+    return pd.cut(y, bins=bins)
+
+
+def clean_enriched_data(df: pd.core.frame.DataFrame, df_features: pd.core.frame.DataFrame,
+                        target: str):
+    """Function to take an enriched dataframe and return only the features"""
+    df = df[[target] + df.columns[-df_features.shape[0]:].tolist()]
+    return df
