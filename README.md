@@ -7,7 +7,9 @@ Instantiate a permutation test object by running
 * `test_object = PermutationObject()`
 
 Then run the following to set the parameters for the synthetic data
-* `test_object.set_data_parameters(nrows = <number of rows>, minority_class = <minority class fraction>`)
+* `test_object.set_data_parameters(nrows = <number of rows>, class_weights = [<minority class fraction>]`)
+
+The class weights takes a python list For a binary target, provide only the minority class weight. For multiclass provide all class weights/fractions.
 
 Create the synthetic data
 * `test_object.create_sythetic_data()`
